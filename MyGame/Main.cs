@@ -15,11 +15,6 @@ internal class Main : GameApp
     {
     }
 
-    protected override void Draw()
-    {
-        _scene.CurrentScene?.Draw(Buffer);
-    }
-
     protected override void Initialize()
     {
         ChangeToTitle();
@@ -35,10 +30,24 @@ internal class Main : GameApp
 
         _scene.CurrentScene?.Update(deltaTime);
     }
+
+    protected override void Draw()
+    {
+        _scene.CurrentScene?.Draw(Buffer);
+    }
+
+
     public void ChangeToTitle()
     {
         var title = new TitleScene();
+        title.StartRequested += ChangeToPlay;
         _scene.ChangeScene(title);
     }
+    public void ChangeToPlay()
+    {
+        var play = new PlayScene();
+        _scene.ChangeScene(play);
+    }
+
 }
 

@@ -8,14 +8,13 @@ internal class Card
 {
     public string Suit { get; set; }
     public int Number { get; set; }
-
-
-    public Card (string suit,int number)
+    public ConsoleColor Color { get; set; }
+    public Card (string suit,int number, ConsoleColor color)
     {
         Number = number;
         Suit = suit;
+        Color = color;
     }
-
     public override string ToString()
     {
         return $"{Suit}{Number}";

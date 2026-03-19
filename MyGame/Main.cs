@@ -46,6 +46,7 @@ internal class Main : GameApp
     public void ChangeToPlay()
     {
         var play = new PlayScene();
+        play.ExitToTitleRequested += ChangeToTitle;
         _scene.ChangeScene(play);
     }
 

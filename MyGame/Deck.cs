@@ -10,11 +10,14 @@ internal class Deck
 {
     private List<Card> cards;
 
+
     public Deck()
     {
         cards = new List<Card>();
         NewDeck();
     }
+
+
 
     private void Make()
     {
@@ -22,12 +25,30 @@ internal class Deck
 
         foreach (var suit in suits)
         {
+            ConsoleColor color = ConsoleColor.White;
+
+            if (suit == "◆")
+            { 
+            color = ConsoleColor.DarkRed;
+            }
+            if (suit == "●")
+            {
+                color = ConsoleColor.Cyan;
+            }
+            if (suit == "▲")
+            {
+                color = ConsoleColor.Yellow;
+            }
             for (int i = 1; i <= 8; i++)
             {
-                cards.Add(new Card(suit, i));
+
+                    cards.Add(new Card(suit, i,color));
+   
             }
         }
     }
+
+
 
     private void NewDeck()
     {
@@ -45,6 +66,8 @@ internal class Deck
         }
     }
 
+
+
     public Card Draw()
     {
         Card card = cards[0];
@@ -52,7 +75,9 @@ internal class Deck
         return card;
     }
 
-    public void AllDraw(List<Player> players)
+
+
+    public void AllDraw(List<PlayerOB> players)
     {
         int Playercount = 0;
         while (cards.Count > 0)

@@ -19,18 +19,22 @@ internal class PlayerOB : GameObject
 
     public Action OnCardPlayed;
     public bool IsAI=false;
-    public int TablePosX { get; set; } 
-    public int TablePosY { get; set; } 
+    public Action ArrayCard;
+
+    public int TablePosX { get; set; }
+    public int TablePosY { get; set; }
 
     public Card PlayedCard { get; set; }
 
 
-    public PlayerOB(Scene scene, GameBoardOB board, int x, int y, string name) : base(scene)
+    public PlayerOB(Scene scene, GameBoardOB board, int x, int y, string name, int tablePosY, int tablePosX) : base(scene)
     {
         Name = name;
         this.board = board;
         this.x = x;
         this.y = y;
+        TablePosY = tablePosY;
+        TablePosX = tablePosX;
     }
 
 
@@ -41,31 +45,39 @@ public void AddCard(Card card)
     }
     protected bool CanPlayCard(Card card)
     {
-        if (board.CurrentLeadSuit == null) return true;
+        if (board.CurrentLeadSuit == null)
+        {
+            return true;
+        }
 
         bool hasLeadSuit = Hand.Any(c => c.Suit == board.CurrentLeadSuit);
 
         if (hasLeadSuit)
+        {
             return card.Suit == board.CurrentLeadSuit;
-
+        }
         return true;
 
     }
     private void PlaySelectedCard()
     {
-        if (select < 0 || select >= Hand.Count) return;
-
+        if (select < 0 || select >= Hand.Count)
+        {
+            return;
+        }
         Card selectedCard = Hand[select];
 
         if (!CanPlayCard(selectedCard))
+        {
             return;
-
+        }
         Hand.RemoveAt(select);
         board.AddCard(this, selectedCard);
 
         if (select >= Hand.Count && Hand.Count > 0)
+        {
             select = Hand.Count - 1;
-
+        }
         IsMyTurn = false;
 
 
@@ -77,7 +89,14 @@ public void AddCard(Card card)
     }
 
 
-
+    public void ArraySuit()
+    {
+        Hand = Hand.OrderByDescending(card => card.Suit).ToList();
+    }
+    public void ArrayNumber()
+    {
+        Hand = Hand.OrderByDescending(card => card.Number).ToList();
+    }
 
 
     public void SelectCard()
@@ -97,12 +116,15 @@ public void AddCard(Card card)
         }
 
         if (select < 0)
+        {
             select = Hand.Count - 1;
-
+        }
         if (select >= Hand.Count)
+        {
             select = 0;
-    }
 
+        }
+    }
 
 
     public Card PlayCard()
@@ -136,28 +158,30 @@ public void AddCard(Card card)
             return;
         }
 
-        int cardWidth = 4;
+        int cardWidth = 5;
         int cardHeight = 3;
-        int spacing = 1;
+        int spacing = 0;
         int totalWidth = Hand.Count * (cardWidth + spacing) - spacing;
         int startX = (buffer.Width - totalWidth) / 2;
 
         for (int i = 0; i < Hand.Count; i++)
         {
             int drawX = startX + i * (cardWidth + spacing);
-            int drawY = (i == select && IsMyTurn) ? y - 1 : y; 
-
+            int drawY = (i == select && IsMyTurn) ? y - 1 : y;
             buffer.DrawBox(drawX, drawY, cardWidth, cardHeight, Hand[i].Color);
             string text = Hand[i].ToString();
-            buffer.WriteText(drawX + 1, drawY + 1, text.Length > 2 ? text.Substring(0, 2) : text, Hand[i].Color);
+            buffer.WriteText(drawX +1, drawY+1 , text , Hand[i].Color);
         }
+
+
     }
 
     public override void Update(float deltaTime)
     {
         if (!IsMyTurn || Hand.Count == 0)
+        {
             return;
-
+        }
         inputDelay -= deltaTime;
 
         SelectCard(); 
@@ -165,6 +189,16 @@ public void AddCard(Card card)
         if (inputDelay <= 0 && Input.IsKeyDown(ConsoleKey.Enter))
         {
             PlaySelectedCard();
+            inputDelay = 0.2f;
+        }
+        if (inputDelay <= 0 && Input.IsKeyDown(ConsoleKey.S))
+        {
+            ArrayNumber();
+            inputDelay = 0.2f;
+        }
+        if (inputDelay <= 0 && Input.IsKeyDown(ConsoleKey.D))
+        {
+            ArraySuit();
             inputDelay = 0.2f;
         }
     }

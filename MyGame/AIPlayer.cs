@@ -7,17 +7,43 @@ using System.Text;
 internal class AIPlayer : PlayerOB
 {
     private float thinkDelay = 1.0f;
-    public AIPlayer(Scene scene, GameBoardOB board, int x, int y, string name) : base(scene, board, x, y, name)
+
+    private static List<string> EasyNames = new List<string>
     {
-        Name = name;
+        "착한 곰돌이",
+        "친절한 소녀",
+    };
+    private static List<string> HardNames = new List<string>
+    {
+        "사나운 곰돌이",
+        "비행 소녀",
+    };
+
+    public AIPlayer(Scene scene, GameBoardOB board, int x, int y, string name, int tablePosY, int tablePosX, bool isEasy)
+       : base(scene, board, x, y, GetRandomName(isEasy), tablePosY, tablePosX)
+    {
         IsAI = true;
+    }
+
+    private static Random rand = new Random();
+
+    public static string GetRandomName(bool isEasy)
+    {
+        var list = isEasy ? EasyNames : HardNames;
+        int index = rand.Next(list.Count);
+        string selected = list[index];
+
+        list.RemoveAt(index); 
+
+        return selected;
     }
 
     public override void Update(float deltaTime)
     {
         if (!IsMyTurn || Hand.Count == 0)
+        {
             return;
-
+        }
         thinkDelay -= deltaTime;
 
         if (thinkDelay <= 0)
@@ -29,7 +55,7 @@ internal class AIPlayer : PlayerOB
 
     private void PlayAI()
     {
-        // 낼 수 있는 카드 찾기
+
         for (int i = 0; i < Hand.Count; i++)
         {
             var card = Hand[i];
@@ -41,8 +67,9 @@ internal class AIPlayer : PlayerOB
                 IsMyTurn = false;
 
                 if (!board.IsTrickEnding)
+                {
                     OnCardPlayed?.Invoke();
-
+                }
                 return;
             }
         }
@@ -50,13 +77,16 @@ internal class AIPlayer : PlayerOB
 
     private bool CanPlay(Card card)
     {
-        if (board.CurrentLeadSuit == null) return true;
-
+        if (board.CurrentLeadSuit == null)
+        {
+            return true;
+        }
         bool hasLead = Hand.Any(c => c.Suit == board.CurrentLeadSuit);
 
         if (hasLead)
+        {
             return card.Suit == board.CurrentLeadSuit;
-
+        }
         return true;
     }
 }

@@ -27,7 +27,7 @@ internal class TitleScene : Scene
     {
         buffer.WriteTextCentered(6, "Goldilocks", ConsoleColor.Yellow);
         buffer.WriteTextCentered(7, "-Card Game-", ConsoleColor.Yellow);
-        buffer.WriteTextCentered(12, "ESC: Quit");
+        buffer.WriteTextCentered(14, "ESC: Quit");
         buffer.WriteTextCentered(15, "Press ENTER to Start", ConsoleColor.Green);
     }
 

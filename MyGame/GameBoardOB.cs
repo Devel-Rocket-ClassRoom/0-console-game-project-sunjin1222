@@ -4,23 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 class GameBoardOB : GameObject
 {
     private List<(PlayerOB player, Card card)> currentTrick = new List<(PlayerOB, Card)>();
     public string CurrentLeadSuit { get; private set; }
 
-
+    public List<PlayerOB> players = new List<PlayerOB>();
     List<Card> playedCards = new List<Card>();
 
-    public const int Left = 1;
-    public const int Top = 6;
-    public const int Right = 38;
-    public const int Bottom = 11;
+    public const int Left = 10;
+    public const int Top = 5;
+    public const int Right = 47;
+    public const int Bottom = 12;
 
     public int TablePosX { get; set; } 
     public int TablePosY { get; set; }
-
     public Action<PlayerOB, Card> OnTrickEnd;
     public bool IsTrickEnding { get; private set; }
 
@@ -28,13 +28,16 @@ class GameBoardOB : GameObject
     {
         Name = "GameBoard";
     }
+
     public bool IsTrickFull()
     {
         return currentTrick.Count >= 3;
     }
 
-
-
+    public void ClearTrick()
+    {
+        currentTrick.Clear();
+    }
 
     public void AddCard(PlayerOB player, Card card)
     {
@@ -45,26 +48,21 @@ class GameBoardOB : GameObject
             CurrentLeadSuit = card.Suit;
             playedCards.Clear();
         }
-
         currentTrick.Add((player, card));
         playedCards.Add(card);
-
         if (currentTrick.Count == 3)
         {
             IsTrickEnding = true; 
 
             var winnerData = DetermineWinner();
-            currentTrick.Clear();
             CurrentLeadSuit = null;
 
             OnTrickEnd?.Invoke(winnerData.player, winnerData.card);
         }
     }
-
     private (PlayerOB player, Card card) DetermineWinner()
     {
-        var sorted = currentTrick
-            .Select((t, index) => new
+        var sorted = currentTrick.Select((t, index) => new
             {
                 t.player,
                 t.card,
@@ -75,50 +73,29 @@ class GameBoardOB : GameObject
 
         return (sorted[1].player, sorted[1].card);
     }
-
-
-
-
     public override void Draw(ScreenBuffer buffer)
     {
         buffer.DrawBox(Left - 1, Top - 1, Right - Left + 3, Bottom - Top + 3, ConsoleColor.DarkGreen);
+        buffer.WriteText(Left +16, Top + 1,"---→", ConsoleColor.DarkYellow);
+        buffer.WriteText(Left + 27, Top + 4, "↙", ConsoleColor.DarkYellow);
+        buffer.WriteText(Left + 9, Top + 4, "↖", ConsoleColor.DarkYellow);
+        buffer.WriteText(0, 16, "press S: SuitArray", ConsoleColor.DarkGray);
+        buffer.WriteText(0, 17 , "press D: NumberArray", ConsoleColor.DarkGray);
 
-
-        int cardWidth = 4;
+        int cardWidth = 5;
         int cardHeight = 3;
-        int spacing = 1;
-        int offset = 0;
-        int i = 0;
         int handCount = playedCards.Count;
 
-        if (handCount == 0)
+        foreach (var (player, card) in currentTrick)
         {
-            return;
-        }
-        int totalWidth = handCount * cardWidth + (handCount - 1) * spacing;
-
-        int boardWidth = Right - Left;
-        int startX = Left + (boardWidth - totalWidth) / 2;
-        int centerY = (Top + Bottom) / 2;
-
-        foreach (Card card in playedCards)
-        {
-            int drawX = startX + offset;
-            int drawY = centerY;
+            int drawX = player.TablePosX;
+            int drawY = player.TablePosY;
 
             buffer.DrawBox(drawX, drawY, cardWidth, cardHeight, card.Color);
-
-            string text = card.ToString();
-            if (text.Length > 2)
-            {
-                text = text.Substring(0, 2);
-            }
-            buffer.WriteText(drawX + 1, drawY + 1, text, card.Color);
-            offset += cardWidth + spacing;
-            i++;
+            string cardText = $"{card.Suit[0]}{card.Number}";
+            buffer.WriteText(drawX + 1, drawY + 1, cardText, card.Color);
         }
     }
-
     public override void Update(float deltaTime)
     {
     }

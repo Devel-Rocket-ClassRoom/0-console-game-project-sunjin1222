@@ -9,16 +9,13 @@ using System.Text;
 internal class Deck
 {
     private List<Card> cards;
-
+    SelectGame selectGame;
 
     public Deck()
     {
         cards = new List<Card>();
         NewDeck();
     }
-
-
-
     private void Make()
     {
         string[] suits = { "◆", "●", "▲" };
@@ -29,7 +26,7 @@ internal class Deck
 
             if (suit == "◆")
             { 
-            color = ConsoleColor.DarkRed;
+                color = ConsoleColor.DarkRed;
             }
             if (suit == "●")
             {
@@ -39,17 +36,12 @@ internal class Deck
             {
                 color = ConsoleColor.Yellow;
             }
-            for (int i = 1; i <= 8; i++)
+            for (int i = 1; i <=12; i++)
             {
-
-                    cards.Add(new Card(suit, i,color));
-   
+                cards.Add(new Card(suit, i,color));
             }
         }
     }
-
-
-
     private void NewDeck()
     {
         cards.Clear();
@@ -65,31 +57,34 @@ internal class Deck
             cards[x] = temp;
         }
     }
-
-
-
     public Card Draw()
     {
         Card card = cards[0];
         cards.RemoveAt(0);
         return card;
     }
+    public void DrawCards(List<PlayerOB> players, int cardsPerPlayer)
+    {
+        for (int i = 0; i < cardsPerPlayer; i++)
+        {
+            for (int j = 0; j < players.Count; j++)
+            {
+                if (cards.Count == 0) return;
 
-
+                players[j].AddCard(Draw());
+            }
+        }
+    }
 
     public void AllDraw(List<PlayerOB> players)
     {
-        int Playercount = 0;
+        int playerIndex = 0;
+
         while (cards.Count > 0)
         {
-            players[Playercount].AddCard(Draw());
-            Playercount= (Playercount + 1)%players.Count;
+            players[playerIndex].AddCard(Draw());
+            playerIndex = (playerIndex + 1) % players.Count;
         }
-
     }
-
-
-
-
 }
 

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 internal class AIPlayer : PlayerOB
 {
     private float thinkDelay = 1.0f;
@@ -18,6 +17,7 @@ internal class AIPlayer : PlayerOB
         "사나운 곰돌이",
         "비행 소녀",
     };
+
 
     public AIPlayer(Scene scene, GameBoardOB board, int x, int y, string name, int tablePosY, int tablePosX, bool isEasy)
        : base(scene, board, x, y, GetRandomName(isEasy), tablePosY, tablePosX)
@@ -38,6 +38,21 @@ internal class AIPlayer : PlayerOB
         return selected;
     }
 
+    public static void ResetNames()
+{
+    EasyNames = new List<string>
+    {
+        "착한 곰돌이",
+        "친절한 소녀",
+    };
+
+    HardNames = new List<string>
+    {
+        "사나운 곰돌이",
+        "비행 소녀",
+    };
+}
+
     public override void Update(float deltaTime)
     {
         if (!IsMyTurn || Hand.Count == 0)
@@ -48,14 +63,14 @@ internal class AIPlayer : PlayerOB
 
         if (thinkDelay <= 0)
         {
-            PlayAI();
+            PlayEasyAI();
             thinkDelay = 1.0f;
         }
     }
 
-    private void PlayAI()
+    private void PlayEasyAI()
     {
-
+        
         for (int i = 0; i < Hand.Count; i++)
         {
             var card = Hand[i];
@@ -74,6 +89,8 @@ internal class AIPlayer : PlayerOB
             }
         }
     }
+
+
 
     private bool CanPlay(Card card)
     {

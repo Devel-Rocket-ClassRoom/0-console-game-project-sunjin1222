@@ -10,7 +10,6 @@ class GameBoardOB : GameObject
 {
     private List<(PlayerOB player, Card card)> currentTrick = new List<(PlayerOB, Card)>();
     public string CurrentLeadSuit { get; private set; }
-
     public List<PlayerOB> players = new List<PlayerOB>();
     List<Card> playedCards = new List<Card>();
 

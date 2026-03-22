@@ -31,11 +31,21 @@ internal class PlayScene : Scene
     bool WaitingTurn = false;
     PlayerOB pendingStartPlayer;
     private bool isEasyMode;
+    private bool AllTie = false;
 
     public PlayScene(bool isEasyMode)
     {
         this.isEasyMode = isEasyMode;
     }
+
+    public int RandoumPlayerIndex()
+    { 
+        Random turn = new Random();
+        int First=turn.Next(0,3);
+
+        return First;
+    }
+
 
 
     public override void Draw(ScreenBuffer buffer)
@@ -65,9 +75,34 @@ internal class PlayScene : Scene
                 buffer.WriteText(17, 5 + i, $"{p.Name}: {p.Score}", ConsoleColor.White);
             }
 
+            if (AllTie)
+            {
+                buffer.WriteText(17, 9, "모두가 동점입니다 ", ConsoleColor.Green);
+                buffer.WriteText(17, 11, "특별한 업적 추가", ConsoleColor.Green);
+            }
+            else
+            {
+                switch(finalWinner.Name)
+                {   
+                 case "플레이어":
+                        buffer.WriteText(17, 10, $"(곰돌이와 소녀 모두가 축하해주고 있습니다)", ConsoleColor.Yellow);
+                        break;
 
-            buffer.WriteText(17, 9, $"승자: {finalWinner.Name}", ConsoleColor.Yellow);
-            buffer.WriteText(17, 11, "Press ENTER to Title", ConsoleColor.Green);
+                    case "비행 소녀":
+                    case "친절한 소녀":
+                        buffer.WriteText(17, 10, $"(소녀가 춤을 추면서 기뻐합니다)", ConsoleColor.Yellow);
+                        break;
+
+
+                    case "착한 곰돌이":
+                    case "사나운 곰돌이":
+                        buffer.WriteText(17, 10, $"(곰이 재주를 부리며 기뻐하고 있습니다)", ConsoleColor.Yellow);
+                        break;
+
+                }
+                buffer.WriteText(17, 9, $"승자: {finalWinner.Name}", ConsoleColor.Yellow);
+                buffer.WriteText(17, 11, "Press ENTER to Title", ConsoleColor.Green);
+            }
         }
     }
 
@@ -91,26 +126,36 @@ internal class PlayScene : Scene
 
     private void ShowResult()
     {
+        if (players.All(p => p.Score == players[0].Score))
+        {
+            AllTie = true;
+            finalWinner = null;
+            return;
+        }
+
+        var groups = players
+            .GroupBy(p => p.Score)
+            .OrderByDescending(g => g.Key)
+            .ToList();
+
+        var tieGroup = groups.FirstOrDefault(g => g.Count() > 1);
+        if (tieGroup != null)
+        {
+            var other = players.FirstOrDefault(p => p.Score != tieGroup.Key);
+
+            if (other != null)
+            {
+                finalWinner = other;
+                return;
+            }
+        }
         var sorted = players
             .OrderByDescending(p => p.Score)
+            .ThenByDescending(p => p.ranking)
             .ToList();
-        if (sorted[0].Score == sorted[1].Score)
-        {
-            finalWinner = sorted[0];
-        }
-        else if (sorted[1].Scene == sorted[2].Scene)
-        {
-            finalWinner = sorted[1];
-        }
-        else if (sorted[0].Scene == sorted[2].Scene)
-        {
-            finalWinner = sorted[1];
-        }
-        else
-        {
-            finalWinner = sorted[1];
-        }
+        finalWinner = sorted[1];
     }
+
 
     private void SetNextStartPlayer(PlayerOB winner)
     {
@@ -183,7 +228,7 @@ internal class PlayScene : Scene
             deck.DrawCards(players, 12); 
         }
 
-        currentPlayerIndex = 0;
+        currentPlayerIndex = RandoumPlayerIndex();
         for (int i = 0; i < players.Count; i++)
         {
             players[i].IsMyTurn = (i == currentPlayerIndex);
@@ -200,6 +245,7 @@ internal class PlayScene : Scene
 
     public override void Unload()
     {
+        AIPlayer.ResetNames();
     }
 
     public override void Update(float deltaTime)

@@ -21,6 +21,8 @@ internal class PlayerOB : GameObject
     public bool IsAI=false;
     public Action ArrayCard;
 
+    public int ranking { get; set; }
+
     public int TablePosX { get; set; }
     public int TablePosY { get; set; }
 
@@ -191,12 +193,12 @@ public void AddCard(Card card)
             PlaySelectedCard();
             inputDelay = 0.2f;
         }
-        if (inputDelay <= 0 && Input.IsKeyDown(ConsoleKey.S))
+        if (inputDelay <= 0 && Input.IsKeyDown(ConsoleKey.D))
         {
             ArrayNumber();
             inputDelay = 0.2f;
         }
-        if (inputDelay <= 0 && Input.IsKeyDown(ConsoleKey.D))
+        if (inputDelay <= 0 && Input.IsKeyDown(ConsoleKey.S))
         {
             ArraySuit();
             inputDelay = 0.2f;
